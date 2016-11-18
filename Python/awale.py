@@ -10,14 +10,12 @@ class Awale:
     def __init__(self, board=None, score=None):
         self.board = board if board is not None else 4 * numpy.ones(12, numpy.int)
         self.score = score if score is not None else numpy.array([0, 0])
-        self.game_over = False
 
     def copy(self):
         """
         :return: copie de l'awalé
         """
-        # TODO: faire des trucs
-        return Awale(numpy.copy(self.board), self.score)
+        return Awale(numpy.copy(self.board), numpy.copy(self.score))
 
     def deal(self, move):
         """
@@ -88,38 +86,10 @@ class Awale:
         else:
             return False
 
-    def play(self, player, move):
+    def eval1(self, player):
         """
-        Joue le coup indiqué s'il est valide, oblige le joueur à choisir une autre case sinon et modifie le plateau
-        ainsi que le score. Si le seul coup possible affame l'adversaire, le coup est joué sans ramasser les graines.
+        Affecte une valeur numérique à l'état actuel de la partie.
         :param player: numéro du joueur
-        :param move: indice de la case à jouer
-        :return: aucun retour
+        :return: évaluation de l'état acutel de la partie
         """
-        # TODO: virer les 2 inputs
-        minmove = player * 6
-        maxmove = (1 + player) * 6
-        if self.can_feed(player)[0] and not (self.can_feed(player)[1]):
-            while not (minmove <= move < maxmove) or self.board[move] == 0:
-                try:
-                    move = int(input("Le coup est invalide, choisissez une autre case : "))
-                except ValueError:
-                    move = -1
-            self.board = self.deal(move)[0]
-        else:
-            while not self.can_play(player, move):
-                try:
-                    move = int(input("Le coup est invalide, choisissez une autre case : "))
-                except ValueError:
-                    move = -1
-            self.board, self.score = self.pick(player, move)
-
-        # TODO: à faire
-        def eval1(awale, player):
-            """
-            Affecte une valeur numérique à l'état actuel de la partie.
-            :param awale: partie considérée
-            :param player: numéro du joueur
-            :return: évaluation de l'état actuel de la partie
-            """
-            return awale.score[player] - awale.score[1 - player]
+        return self.score[player] - self.score[1 - player]
