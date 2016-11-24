@@ -3,19 +3,26 @@ import numpy
 
 class Awale:
     """
-    Le plateau de jeu est constitué de 2 rangées de 6 trous, contenant 4 graines au départ.
-    On initialise le score de chaque joueur à 0.
+    Permet de modéliser l'awalé.
     """
 
     def __init__(self, board=None, score=None):
+        """
+        Le plateau de jeu est constitué de 2 rangées de 6 trous, chaque trou contenant 4 graines au départ par défaut.
+        Le score de chaque joueur est initalisé à 0 par défaut.
+        :param board: plateu de jeu
+        :param score: score des deux joueurs
+        """
         self.board = board if board is not None else 4 * numpy.ones(12, numpy.int)
-        self.score = score if score is not None else numpy.array([0, 0])
+        self.score = score if score is not None else numpy.zeros(2, numpy.int)
 
     def copy(self):
         """
         :return: copie de l'awalé
         """
-        return Awale(numpy.copy(self.board), numpy.copy(self.score))
+        board = numpy.copy(self.board)
+        score = numpy.copy(self.score)
+        return Awale(board, score)
 
     def deal(self, move):
         """
@@ -51,45 +58,55 @@ class Awale:
             i -= 1
         return new_board, new_score
 
-    def can_feed(self, player):
+    def will_starve(self, player, move):
         """
-        Compte le nombre de coups possibles pour le joueur, vérifie qu'il ne va pas affamer son adversaire.
         :param player: numéro du joueur
-        :return: "un seul coup possible", "n'affame pas son adversaire"
+        :param move: indice de la case à jouer
+        :return: "va affamer l'adversaire"
         """
-        feed = False
-        minmove = player * 6
-        maxmove = (1 + player) * 6
         minpick = (1 - player) * 6
         maxpick = (2 - player) * 6
-        moves_count = 0
-        for i in range(minmove, maxmove):
-            if self.board[i] != 0:
-                moves_count += 1
-                feed = feed or self.pick(player, i)[0][minpick:maxpick].any() != 0
-        return moves_count == 1, feed
+        new_board = self.pick(player, move)[0]
+        starving = new_board[minpick:maxpick].sum() == 0
+        return starving
 
     def can_play(self, player, move):
         """
-        Vérifie que le coup indiqué est valide.
         :param player: numéro du joueur
         :param move: indice de la case à jouer
-        :return: booléen "le coup est valide"
+        :return: "le coup est valide"
         """
         minmove = player * 6
         maxmove = (1 + player) * 6
-        if minmove <= move < maxmove:
-            minpick = (1 - player) * 6
-            maxpick = (2 - player) * 6
-            new_board = self.pick(player, move)[0]
-            return self.board[move] != 0 and new_board[minpick:maxpick].any() != 0
-        else:
-            return False
+        return minmove <= move < maxmove and self.board[move] != 0
 
-    def eval1(self, player):
+    def play(self, player, move):
         """
-        Affecte une valeur numérique à l'état actuel de la partie.
+        Joue le coup indiqué. Si le coup affame l'adversaire, le joueur ne ramasse pas les graines.
         :param player: numéro du joueur
-        :return: évaluation de l'état acutel de la partie
+        :param move: indice de la case à jouer
+        :return: aucun retour
+        """
+        if self.will_starve(player, move):
+            new_board = self.deal(move)[0]
+            self.board = new_board
+        else:
+            self.board, self.score = self.pick(player, move)
+
+    def get_seeds(self):
+        """
+        Partage les graines s'il en reste sur le plateau à la fin de la partie : chaque joueur récupère les graines
+        qui sont dans sa rangée.
+        :return: aucun retour
+        """
+        for i in range(12):
+            if self.board[i] != 0:
+                self.score[i // 6] += self.board[i]
+                self.board[i] = 0
+
+    def evaluation1(self, player):
+        """
+        :param player: numéro du joueur
+        :return: valeur numérique de l'état actuel de la partie
         """
         return self.score[player] - self.score[1 - player]
