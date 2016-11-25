@@ -1,6 +1,5 @@
 import numpy
 from awale import Awale
-from player import Human
 
 
 class Game:
@@ -8,13 +7,16 @@ class Game:
     Permet de lancer une partie d'awalé.
     """
 
-    def __init__(self, board=None, score=None):
+    def __init__(self, player0, player1, board=None, score=None, debug=True):
         """
         :param board: plateau de jeu initial si différent du plateau de début de partie
         :param score: score de jeu initial si différent du score de début de partie
         """
         self.awale = Awale(board, score)
+        self.players = [player0, player1]
         self.game_over = False
+        self.debug = debug
+        self.moves_count = 0
 
     @staticmethod
     def display_rules():
@@ -42,6 +44,7 @@ class Game:
         minpick = (1 - player) * 6
         maxpick = (2 - player) * 6
         cannot_feed = self.awale.board[minpick:maxpick].sum() == 0
+
         for i in range(minmove, maxmove):
             cannot_feed = cannot_feed and self.awale.will_starve(player, i)
         self.game_over = self.awale.score[player] >= 24 or self.awale.score[1 - player] >= 24 or cannot_feed
@@ -52,6 +55,7 @@ class Game:
         """
         north = self.awale.board[6:12][::-1]
         south = self.awale.board[0:6]
+
         return numpy.array([north, south])
 
     def display_board(self):
@@ -84,18 +88,29 @@ class Game:
             print("Il y a égalité !\n")
 
     def new_game(self):
-        self.display_rules()
+        """
+        Lance une partie d'awalé.
+        :return: aucun retour
+        """
+        if self.debug:
+            self.display_rules()
         player = 0
-        while not self.game_over:
-            self.display_board()
-            self.display_score()
-            print("C'est au joueur", player, "de jouer.")
-            # TODO: corriger le problème de famine et faire des tests
-            move = Human.get_move(self.awale, player)
-            self.awale.play(player, move)
+        count = 0
+        max_count = 1000
+        while not self.game_over and count < max_count:
+            count += 1
+            self.moves_count += 1
+            if self.debug:
+                self.display_board()
+                self.display_score()
+                print("C'est au joueur", player, "de jouer.")
+            move = self.players[player].get_move(self.awale, player)
+            if self.awale.can_play(player, move):
+                self.awale.play(player, move)
+            else:
+                raise Exception("Tricheur! La case {} ne peut pas être jouée.".format(move))
             player = 1 - player
             self.update_game_over(player)
-        self.display_result()
 
-game = Game()
-game.new_game()
+        if self.debug:
+            self.display_result()

@@ -20,8 +20,8 @@ class Awale:
         """
         :return: copie de l'awalé
         """
-        board = numpy.copy(self.board)
-        score = numpy.copy(self.score)
+        board, score = numpy.copy(self.board), numpy.copy(self.score)
+
         return Awale(board, score)
 
     def deal(self, move):
@@ -34,28 +34,32 @@ class Awale:
         seeds = new_board[move]
         new_board[move] = 0
         i = move
+
         while seeds > 0:
             i += 1
             if i % 12 != move:
                 new_board[i % 12] += 1
                 seeds -= 1
+
         return new_board, i % 12
 
     def pick(self, player, move):
         """
         Ramasse les graines et renvoie le nouveau plateau ainsi que le nouveau score.
         :param player: numéro du joueur
-        :param move: indice de la case de la dernière graine posée
+        :param move: indice de la case à jouer
         :return: nouveau plateau, nouveau score
         """
         new_board, i = self.deal(move)
         new_score = numpy.copy(self.score)
         minpick = (1 - player) * 6
         maxpick = (2 - player) * 6
+
         while minpick <= i < maxpick and 2 <= new_board[i] <= 3:
             new_score[player] += new_board[i]
             new_board[i] = 0
             i -= 1
+
         return new_board, new_score
 
     def will_starve(self, player, move):
@@ -68,6 +72,7 @@ class Awale:
         maxpick = (2 - player) * 6
         new_board = self.pick(player, move)[0]
         starving = new_board[minpick:maxpick].sum() == 0
+
         return starving
 
     def can_play(self, player, move):
@@ -78,7 +83,13 @@ class Awale:
         """
         minmove = player * 6
         maxmove = (1 + player) * 6
-        return minmove <= move < maxmove and self.board[move] != 0
+        minpick = (1 - player) * 6
+        maxpick = (2 - player) * 6
+
+        if self.board[minpick:maxpick].sum() == 0:
+            return minmove <= move < maxmove and self.board[move] != 0 and not self.will_starve(player, move)
+        else:
+            return minmove <= move < maxmove and self.board[move] != 0
 
     def play(self, player, move):
         """

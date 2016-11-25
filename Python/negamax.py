@@ -1,6 +1,6 @@
 import numpy
 from awale import Awale
-from player import Human
+from human_player import HumanPlayer
 
 
 # def minmax(awale, depth, player):
