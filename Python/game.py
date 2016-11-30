@@ -7,7 +7,7 @@ class Game:
     Permet de lancer une partie d'awalé.
     """
 
-    def __init__(self, player0, player1, board=None, score=None, debug=True):
+    def __init__(self, player0, player1, board=None, score=None, debug=True, max_count=400):
         """
         :param board: plateau de jeu initial si différent du plateau de début de partie
         :param score: score de jeu initial si différent du score de début de partie
@@ -17,6 +17,7 @@ class Game:
         self.game_over = False
         self.debug = debug
         self.moves_count = 0
+        self.max_count = max_count
 
     @staticmethod
     def display_rules():
@@ -88,15 +89,6 @@ class Game:
         else:
             print("Il y a égalité !\n")
 
-    def reset(self):
-        """
-        Réinitialise le jeu pour une prochaine partie.
-        :return: aucun retour
-        """
-        self.awale = Awale(board=None, score=None)
-        self.game_over = False
-        self.moves_count = 0
-
     def new_game(self):
         """
         Lance une partie d'awalé. La partie s'arrête si le nombre de coups joués dépasse max_count.
@@ -105,11 +97,12 @@ class Game:
         if self.debug:
             self.display_rules()
 
-        self.reset()
+        self.awale = Awale(board=None, score=None)
+        self.game_over = False
+        self.moves_count = 0
         player = 0
-        max_count = 1000
 
-        while not self.game_over and self.moves_count < max_count:
+        while not self.game_over and self.moves_count < self.max_count:
             self.moves_count += 1
 
             if self.debug:

@@ -5,7 +5,7 @@ from random_player import RandomPlayer
 
 n = 5000
 max_moves = numpy.zeros(n)
-game = Game(RandomPlayer(), RandomPlayer(), debug=False)
+game = Game(RandomPlayer(), RandomPlayer(), debug=False, max_count=1000)
 over400 = numpy.zeros(10)
 mean_moves = numpy.zeros(10)
 
