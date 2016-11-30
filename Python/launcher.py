@@ -1,8 +1,5 @@
-import numpy
 from game import Game
-from random_player import RandomPlayer
 from human_player import HumanPlayer
-import matplotlib.pyplot as plt
 
-game = Game(HumanPlayer(), HumanPlayer(), debug=True)
+game = Game(HumanPlayer(), HumanPlayer())
 game.new_game()

@@ -47,6 +47,7 @@ class Game:
 
         for i in range(minmove, maxmove):
             cannot_feed = cannot_feed and self.awale.will_starve(player, i)
+
         self.game_over = self.awale.score[player] >= 24 or self.awale.score[1 - player] >= 24 or cannot_feed
 
     def get_board(self):
@@ -87,28 +88,40 @@ class Game:
         else:
             print("Il y a égalité !\n")
 
+    def reset(self):
+        """
+        Réinitialise le jeu pour une prochaine partie.
+        :return: aucun retour
+        """
+        self.awale = Awale(board=None, score=None)
+        self.game_over = False
+        self.moves_count = 0
+
     def new_game(self):
         """
-        Lance une partie d'awalé.
+        Lance une partie d'awalé. La partie s'arrête si le nombre de coups joués dépasse max_count.
         :return: aucun retour
         """
         if self.debug:
             self.display_rules()
+
+        self.reset()
         player = 0
-        count = 0
         max_count = 1000
-        while not self.game_over and count < max_count:
-            count += 1
+
+        while not self.game_over and self.moves_count < max_count:
             self.moves_count += 1
+
             if self.debug:
                 self.display_board()
                 self.display_score()
                 print("C'est au joueur", player, "de jouer.")
+
             move = self.players[player].get_move(self.awale, player)
             if self.awale.can_play(player, move):
                 self.awale.play(player, move)
             else:
-                raise Exception("Tricheur! La case {} ne peut pas être jouée.".format(move))
+                raise Exception("Erreur! La case %s ne peut pas être jouée." % move)
             player = 1 - player
             self.update_game_over(player)
 

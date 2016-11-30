@@ -11,10 +11,9 @@ class RandomPlayer:
         """
         minmove = player * 6
         maxmove = (1 + player) * 6
-        can_play = False
+        move = -1
 
-        while not can_play:
+        while not awale.can_play(player, move):
             move = random.randint(minmove, maxmove)
-            can_play = awale.can_play(player, move)
 
         return move
