@@ -1,6 +1,5 @@
 from awale import Awale
 
-
 class Minmax:
     """
     créer l'arbre et renvoie le trou optimal à jouer
