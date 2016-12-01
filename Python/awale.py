@@ -138,4 +138,3 @@ class Awale:
                 self.winner = 1 - player
             elif self.score[player] == self.score[1 - player]:
                 self.winner = -1
-
