@@ -14,7 +14,6 @@ class Game:
         """
         self.awale = Awale(board, score)
         self.players = [player0, player1]
-        self.game_over = False
         self.debug = debug
         self.moves_count = 0
         self.max_count = max_count
@@ -34,22 +33,6 @@ class Game:
               "On regarde de même les trous précédents, et on s'arrête dès qu'un trou contient 0, 1 ou plus de 4"
               " graines ou qu'on revient au territoire du joueur.\n"
               "Le gagnant est celui qui a le plus de graines à la fin de la partie.\n")
-
-    def update_game_over(self, player):
-        """
-        :param player: numéro du joueur
-        :return: "la partie est terminée"
-        """
-        minmove = player * 6
-        maxmove = (1 + player) * 6
-        minpick = (1 - player) * 6
-        maxpick = (2 - player) * 6
-        cannot_feed = self.awale.board[minpick:maxpick].sum() == 0
-
-        for i in range(minmove, maxmove):
-            cannot_feed = cannot_feed and self.awale.will_starve(player, i)
-
-        self.game_over = self.awale.score[player] >= 24 or self.awale.score[1 - player] >= 24 or cannot_feed
 
     def get_board(self):
         """
@@ -91,18 +74,18 @@ class Game:
 
     def new_game(self):
         """
-        Lance une partie d'awalé. La partie s'arrête si le nombre de coups joués dépasse max_count.
+        Lance une partie d'awalé. La partie s'arrête si le nombre de coups joués dépasse max_count
         :return: aucun retour
         """
         if self.debug:
             self.display_rules()
 
-        self.awale = Awale(board=None, score=None)
-        self.game_over = False
+        self.awale = Awale(board=numpy.array([2, 2, 1, 1, 0, 2, 3, 2, 3, 5, 0, 0]), score=None)
+        self.awale.game_over = False
         self.moves_count = 0
-        player = 0
+        player = 1
 
-        while not self.game_over and self.moves_count < self.max_count:
+        while not self.awale.game_over and self.moves_count < self.max_count:
             self.moves_count += 1
 
             if self.debug:
@@ -114,12 +97,14 @@ class Game:
                                                  " Choisissez une case entre {} et {}.".format(minmove, maxmove - 1))
 
             move = self.players[player].get_move(self.awale, player)
+            if self.debug:
+                print("le joueur", player, "a joué", move)
             if self.awale.can_play(player, move):
                 self.awale.play(player, move)
+                self.awale.has_won(player)
             else:
                 raise Exception("Erreur! La case %s ne peut pas être jouée." % move)
             player = 1 - player
-            self.update_game_over(player)
 
         if self.debug:
             self.display_result()

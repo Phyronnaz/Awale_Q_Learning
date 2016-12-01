@@ -15,6 +15,8 @@ class Awale:
         """
         self.board = board if board is not None else 4 * numpy.ones(12, numpy.int)
         self.score = score if score is not None else numpy.zeros(2, numpy.int)
+        # Vaut -2 tant que la partie n'est pas finie, -1 s'il y a égalité et le numéro du joueur s'il y a un gagnant.
+        self.winner = -2
 
     def copy(self):
         """
@@ -121,3 +123,19 @@ class Awale:
         :return: valeur numérique de l'état actuel de la partie
         """
         return self.score[player] - self.score[1 - player]
+
+    def has_won(self, player):
+        """
+        :param player: numéro du joueur qui vient de jouer
+        :return: "la partie est terminée"
+        """
+        if self.winner == -2:
+            minpick = (1 - player) * 6
+            maxpick = (2 - player) * 6
+            if self.board[minpick:maxpick].sum() == 0 or self.score[player] > 24:
+                self.winner = player
+            elif self.score[1 - player] > 24:
+                self.winner = 1 - player
+            elif self.score[player] == self.score[1 - player]:
+                self.winner = -1
+
