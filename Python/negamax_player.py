@@ -2,6 +2,8 @@ from negamax import Negamax
 
 
 class NegamaxPlayer:
-    @staticmethod
-    def get_move(awale, depth, player):
-        return Negamax.negamax(awale, depth, player, False)
+    def __init__(self, depth):
+        self.depth = depth
+
+    def get_move(self, awale, player):
+        return Negamax.negamax(awale, self.depth, player, False)
