@@ -108,7 +108,10 @@ class Game:
             if self.debug:
                 self.display_board()
                 self.display_score()
-                print("C'est au joueur", player, "de jouer.")
+                minmove = player * 6
+                maxmove = (1 + player) * 6
+                print("C'est au joueur", player, "de jouer."
+                                                 " Choisissez une case entre {} et {}.".format(minmove, maxmove - 1))
 
             move = self.players[player].get_move(self.awale, player)
             if self.awale.can_play(player, move):
