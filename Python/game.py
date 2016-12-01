@@ -121,6 +121,5 @@ class Game:
             player = 1 - player
             self.update_game_over(player)
 
-
         if self.debug:
             self.display_result()

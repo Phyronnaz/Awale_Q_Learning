@@ -1,5 +1,6 @@
 from awale import Awale
 
+
 class Negamax:
     """
     créer l'arbre et renvoie le trou optimal à jouer
@@ -29,7 +30,7 @@ class Negamax:
                     cannot_feed = cannot_feed and new_awale.will_starve(player, i)
 
                 game_state = new_awale.score[player] >= 24 or new_awale.score[1 - player] >= 24 or cannot_feed
-                score = -Negamax.negamax(new_awale, depth - 1, 1-player, game_state)
+                score = -Negamax.negamax(new_awale, depth - 1, 1 - player, game_state)
                 if score >= best_score:
                     best_score = score
                     best_move = j
