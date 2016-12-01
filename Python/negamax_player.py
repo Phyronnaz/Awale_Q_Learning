@@ -6,4 +6,4 @@ class NegamaxPlayer:
         self.depth = depth
 
     def get_move(self, awale, player):
-        return Negamax.negamax(awale, self.depth, player, False)
+        return Negamax.negamax(awale, self.depth, player)

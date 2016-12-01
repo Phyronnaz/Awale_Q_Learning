@@ -80,12 +80,10 @@ class Game:
         if self.debug:
             self.display_rules()
 
-        self.awale = Awale(board=numpy.array([2, 2, 1, 1, 0, 2, 3, 2, 3, 5, 0, 0]), score=None)
-        self.awale.game_over = False
-        self.moves_count = 0
+        self.awale = Awale(board=numpy.array([1, 0, 0, 0, 0, 1, 4, 0, 3, 0, 0, 1]), score=numpy.array([17, 21]))
         player = 1
 
-        while not self.awale.game_over and self.moves_count < self.max_count:
+        while self.awale.winner == -2 and self.moves_count < self.max_count:
             self.moves_count += 1
 
             if self.debug:
@@ -97,13 +95,12 @@ class Game:
                                                  " Choisissez une case entre {} et {}.".format(minmove, maxmove - 1))
 
             move = self.players[player].get_move(self.awale, player)
-            if self.debug:
-                print("le joueur", player, "a joué", move)
             if self.awale.can_play(player, move):
                 self.awale.play(player, move)
-                self.awale.has_won(player)
+                self.awale.check_winner(player)
+                print("Le joueur {} a joué la case {}.".format(player, move))
             else:
-                raise Exception("Erreur! La case %s ne peut pas être jouée." % move)
+                raise Exception("Erreur! La case {} ne peut pas être jouée.".format(move))
             player = 1 - player
 
         if self.debug:

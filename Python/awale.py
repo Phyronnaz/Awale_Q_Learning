@@ -6,7 +6,7 @@ class Awale:
     Permet de modéliser l'awalé.
     """
 
-    def __init__(self, board=None, score=None):
+    def __init__(self, board=None, score=None, winner=-2):
         """
         Le plateau de jeu est constitué de 2 rangées de 6 trous, chaque trou contenant 4 graines au départ par défaut.
         Le score de chaque joueur est initalisé à 0 par défaut.
@@ -16,7 +16,7 @@ class Awale:
         self.board = board if board is not None else 4 * numpy.ones(12, numpy.int)
         self.score = score if score is not None else numpy.zeros(2, numpy.int)
         # Vaut -2 tant que la partie n'est pas finie, -1 s'il y a égalité et le numéro du joueur s'il y a un gagnant.
-        self.winner = -2
+        self.winner = winner
 
     def copy(self):
         """
@@ -24,7 +24,7 @@ class Awale:
         """
         board, score = numpy.copy(self.board), numpy.copy(self.score)
 
-        return Awale(board, score)
+        return Awale(board, score, winner=self.winner)
 
     def deal(self, move):
         """
@@ -124,10 +124,11 @@ class Awale:
         """
         return self.score[player] - self.score[1 - player]
 
-    def has_won(self, player):
+    def check_winner(self, player):
         """
+        Vérifie si la partie est terminée.
         :param player: numéro du joueur qui vient de jouer
-        :return: "la partie est terminée"
+        :return: aucun retour
         """
         if self.winner == -2:
             minpick = (1 - player) * 6
@@ -136,5 +137,3 @@ class Awale:
                 self.winner = player
             elif self.score[1 - player] > 24:
                 self.winner = 1 - player
-            elif self.score[player] == self.score[1 - player]:
-                self.winner = -1
