@@ -77,6 +77,20 @@ class Awale:
 
         return starving
 
+    def cannot_feed(self, player):
+        """
+        :param player: numéro du joueur
+        :return: "ne peut pas nourrir l'adversaire"
+        """
+        minmove = player * 6
+        maxmove = (1 + player) * 6
+        cannot_feed = True
+
+        for i in range(minmove, maxmove):
+            cannot_feed = cannot_feed and self.will_starve(player, i)
+
+        return cannot_feed
+
     def can_play(self, player, move):
         """
         :param player: numéro du joueur
@@ -89,7 +103,8 @@ class Awale:
         maxpick = (2 - player) * 6
 
         if self.board[minpick:maxpick].sum() == 0:
-            return minmove <= move < maxmove and self.board[move] != 0 and not self.will_starve(player, move)
+            return minmove <= move < maxmove and self.board[move] != 0 and (
+                not self.will_starve(player, move) or self.cannot_feed(player))
         else:
             return minmove <= move < maxmove and self.board[move] != 0
 

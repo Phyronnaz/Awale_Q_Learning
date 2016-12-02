@@ -74,14 +74,16 @@ class Game:
 
     def new_game(self):
         """
-        Lance une partie d'awalé. La partie s'arrête si le nombre de coups joués dépasse max_count
+        Lance une partie d'awalé. La partie s'arrête si le nombre de coups joués dépasse max_count.
         :return: aucun retour
         """
         if self.debug:
             self.display_rules()
 
-        self.awale = Awale(board=numpy.array([1, 0, 0, 0, 0, 1, 4, 0, 3, 0, 0, 1]), score=numpy.array([17, 21]))
-        player = 1
+        # self.awale = Awale(board=numpy.array([1, 0, 0, 0, 0, 1, 4, 0, 3, 0, 0, 1]), score=numpy.array([17, 21]))
+        self.awale = Awale()
+        self.moves_count = 0
+        player = 0
 
         while self.awale.winner == -2 and self.moves_count < self.max_count:
             self.moves_count += 1
@@ -98,7 +100,8 @@ class Game:
             if self.awale.can_play(player, move):
                 self.awale.play(player, move)
                 self.awale.check_winner(player)
-                print("Le joueur {} a joué la case {}.".format(player, move))
+                if self.debug:
+                    print("Le joueur {} a joué la case {}.".format(player, move))
             else:
                 raise Exception("Erreur! La case {} ne peut pas être jouée.".format(move))
             player = 1 - player
