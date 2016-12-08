@@ -6,6 +6,6 @@ from negamax_player import NegamaxPlayer
 from alphabeta_player import AlphabetaPlayer
 
 
-game = Game(NegamaxPlayer(6),HumanPlayer(), debug=True)
+game = Game(AlphabetaPlayer(4),AlphabetaPlayer(6), debug=False)
 game.new_game()
 game.display_result()
