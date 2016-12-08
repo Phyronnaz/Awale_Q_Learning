@@ -8,7 +8,7 @@ class Alphabeta:
         if awale.winner != -2 or depth == 0:
             return [awale.evaluation1(player), 6 * player]
         else:
-            best_score=-float("inf")
+            best_score = -float("inf")
             possible_moves = []
             minmove = 6 * player
             maxmove = 6 * (1 + player)
@@ -24,11 +24,11 @@ class Alphabeta:
                 copy_awale.play(player, i)
                 copy_awale.check_winner(player)
                 new_awale = Awale(copy_awale.board, copy_awale.score, winner=copy_awale.winner)
-                score = -Alphabeta.alphabeta(new_awale, depth-1, 1 - player, -beta, -alpha)[0]
-                if score >= alpha and score>=best_score:
-                    alpha = score
-                    best_score=score
-                    best_move = i
-                    if alpha >= beta:
-                        break
+                score = -Alphabeta.alphabeta(new_awale, depth - 1, 1 - player, -beta, -alpha)[0]
+                if score >= best_score:
+                    best_score = score
+                    if best_score >= alpha:
+                        alpha = best_score
+                        if alpha >= beta:
+                            break
         return [best_score, best_move]
