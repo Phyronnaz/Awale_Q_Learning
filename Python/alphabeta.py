@@ -27,6 +27,7 @@ class Alphabeta:
                 score = -Alphabeta.alphabeta(new_awale, depth - 1, 1 - player, -beta, -alpha)[0]
                 if score >= best_score:
                     best_score = score
+                    best_move = i
                     if best_score >= alpha:
                         alpha = best_score
                         if alpha >= beta:
