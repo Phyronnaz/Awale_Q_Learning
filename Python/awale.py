@@ -148,7 +148,7 @@ class Awale:
         if self.winner == -2:
             minpick = (1 - player) * 6
             maxpick = (2 - player) * 6
-            if self.board[minpick:maxpick].sum() == 0 or self.score[player] > 24:
+            if self.board[minpick:maxpick].sum() == 0 or self.score[player] >= 24:
                 self.winner = player
-            elif self.score[1 - player] > 24:
+            elif self.score[1 - player] >= 24:
                 self.winner = 1 - player

@@ -55,13 +55,14 @@ class Game:
         Affiche le score de chaque joueur.
         :return: aucun retour
         """
-        print("Score du joueur 0 :", self.awale.score[0], "\nScore du joueur 1 :", self.awale.score[1])
+        print("Score du joueur 0 : {}\nScore du joueur 1 : {}".format(self.awale.score[0], self.awale.score[1]))
 
     def display_result(self):
         """
         Affiche le résultat de la partie.
         :return: aucun retour
         """
+        print("La partie s'est terminée en {} coups.".format(self.moves_count))
         if self.awale.score[0] < 24 and self.awale.score[1] < 24:
             self.awale.get_seeds()
         self.display_score()
@@ -80,7 +81,6 @@ class Game:
         if self.debug:
             self.display_rules()
 
-        # self.awale = Awale(board=numpy.array([1, 0, 0, 0, 0, 1, 4, 0, 3, 0, 0, 1]), score=numpy.array([17, 21]))
         self.awale = Awale()
         self.moves_count = 0
         player = 0
@@ -93,8 +93,8 @@ class Game:
                 self.display_score()
                 minmove = player * 6
                 maxmove = (1 + player) * 6
-                print("C'est au joueur", player, "de jouer."
-                                                 " Choisissez une case entre {} et {}.".format(minmove, maxmove - 1))
+                print("C'est au joueur {} de jouer. Choisissez une case entre {} et {}.".format(player, minmove,
+                                                                                                maxmove - 1))
 
             move = self.players[player].get_move(self.awale, player)
             if self.awale.can_play(player, move):

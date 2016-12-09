@@ -9,10 +9,12 @@ class Negamax:
         :param awale: jeu d'awalé
         :param depth: profondeur de l'arbre
         :param player: numéro du joueur
-        :return: mailleur score, meilleur coup
+        :return: meilleur score, meilleur coup
         """
         if awale.winner != -2 or depth == 0:
-            return [awale.evaluation1(player), 6 * player]
+
+            return awale.evaluation1(player), 6 * player  # TODO : vérifier le coup renvoyé
+
         else:
             best_score = -float("inf")
             possible_moves = []
@@ -31,8 +33,8 @@ class Negamax:
                 copy_awale.check_winner(player)
                 new_awale = Awale(copy_awale.board, copy_awale.score, winner=copy_awale.winner)
                 score = -Negamax.negamax(new_awale, depth - 1, 1 - player)[0]
-                if score >= best_score:
+                if score > best_score:
                     best_score = score
                     best_move = i
 
-            return [best_score, best_move]
+            return best_score, best_move
