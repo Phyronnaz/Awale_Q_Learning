@@ -25,8 +25,7 @@ class Negabeta:
                 copy_awale = awale.copy()
                 copy_awale.play(player, i)
                 copy_awale.check_winner(player)
-                new_awale = Awale(copy_awale.board, copy_awale.score,
-                                  winner=copy_awale.winner)  # TODO : vérifier la copie
+                new_awale = copy_awale.copy()
                 score = -Negabeta.negabeta(new_awale, depth - 1, 1 - player, -beta, -alpha)[0]
                 if score > best_score:
                     best_score = score
