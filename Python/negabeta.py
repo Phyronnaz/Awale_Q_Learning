@@ -5,7 +5,7 @@ class Negabeta:
 
         if awale.winner != -2 or depth == 0:
 
-            return evaluation.evaluation2(player), 6 * player
+            return evaluation(awale, player), 6 * player
 
         else:
             best_score = -float("inf")

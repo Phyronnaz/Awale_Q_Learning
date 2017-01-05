@@ -6,6 +6,6 @@ from negamax_player import NegamaxPlayer
 from negabeta_player import NegabetaPlayer
 from evaluation import Evaluation
 
-game = Game(NegabetaPlayer(4,Evaluation.evaluation2()), NegabetaPlayer(5,Evaluation.evaluation2), debug=False)
+game = Game(NegabetaPlayer(5 ,Evaluation.evaluation1), NegabetaPlayer(5, Evaluation.evaluation2), debug=False)
 game.new_game()
 game.display_result()
