@@ -132,13 +132,6 @@ class Awale:
                 self.score[i // 6] += self.board[i]
                 self.board[i] = 0
 
-    def evaluation1(self, player):
-        """
-        :param player: numéro du joueur
-        :return: valeur numérique de l'état actuel de la partie
-        """
-        return self.score[player] - self.score[1 - player]
-
     def check_winner(self, player):
         """
         Vérifie si la partie est terminée.

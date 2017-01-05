@@ -4,7 +4,8 @@ from random_player import RandomPlayer
 from newbie_player import NewbiePlayer
 from negamax_player import NegamaxPlayer
 from negabeta_player import NegabetaPlayer
+from evaluation import Evaluation
 
-game = Game(NegabetaPlayer(8), NegabetaPlayer(6), debug=False)
+game = Game(NegabetaPlayer(4,Evaluation.evaluation2()), NegabetaPlayer(5,Evaluation.evaluation2), debug=False)
 game.new_game()
 game.display_result()

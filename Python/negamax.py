@@ -3,7 +3,7 @@ from awale import Awale
 
 class Negamax:
     @staticmethod
-    def negamax(awale, depth, player):
+    def negamax(awale, depth, player, evaluation):
         """
         Calcule le meilleur score et le meilleur coup possible.
         :param awale: jeu d'awalé
@@ -13,7 +13,7 @@ class Negamax:
         """
         if awale.winner != -2 or depth == 0:
 
-            return awale.evaluation1(player), 6 * player  # TODO : vérifier le coup renvoyé
+            return evaluation.evaluation1(player), 6 * player
 
         else:
             best_score = -float("inf")
@@ -32,7 +32,7 @@ class Negamax:
                 copy_awale.play(player, i)
                 copy_awale.check_winner(player)
                 new_awale = Awale(copy_awale.board, copy_awale.score, winner=copy_awale.winner)
-                score = -Negamax.negamax(new_awale, depth - 1, 1 - player)[0]
+                score = -Negamax.negamax(new_awale, depth - 1, 1 - player, evaluation)[0]
                 if score > best_score:
                     best_score = score
                     best_move = i

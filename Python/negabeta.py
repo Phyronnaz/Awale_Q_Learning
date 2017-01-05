@@ -1,13 +1,11 @@
-from awale import Awale
-
 
 class Negabeta:
     @staticmethod
-    def negabeta(awale, depth, player, alpha, beta):
+    def negabeta(awale, depth, player, alpha, beta, evaluation):
 
         if awale.winner != -2 or depth == 0:
 
-            return awale.evaluation1(player), 6 * player
+            return evaluation.evaluation2(player), 6 * player
 
         else:
             best_score = -float("inf")
@@ -26,7 +24,7 @@ class Negabeta:
                 copy_awale.play(player, i)
                 copy_awale.check_winner(player)
                 new_awale = copy_awale.copy()
-                score = -Negabeta.negabeta(new_awale, depth - 1, 1 - player, -beta, -alpha)[0]
+                score = -Negabeta.negabeta(new_awale, depth - 1, 1 - player, -beta, -alpha, evaluation)[0]
                 if score > best_score:
                     best_score = score
                     best_move = i
