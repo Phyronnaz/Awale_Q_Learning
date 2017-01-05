@@ -6,7 +6,7 @@ class Awale:
     Permet de modéliser l'awalé.
     """
 
-    def __init__(self, board=None, score=None):
+    def __init__(self, board=None, score=None, winner=-2):
         """
         Le plateau de jeu est constitué de 2 rangées de 6 trous, chaque trou contenant 4 graines au départ par défaut.
         Le score de chaque joueur est initalisé à 0 par défaut.
@@ -15,6 +15,8 @@ class Awale:
         """
         self.board = board if board is not None else 4 * numpy.ones(12, numpy.int)
         self.score = score if score is not None else numpy.zeros(2, numpy.int)
+        # Vaut -2 tant que la partie n'est pas finie, -1 s'il y a égalité et le numéro du joueur s'il y a un gagnant.
+        self.winner = winner
 
     def copy(self):
         """
@@ -22,7 +24,7 @@ class Awale:
         """
         board, score = numpy.copy(self.board), numpy.copy(self.score)
 
-        return Awale(board, score)
+        return Awale(board, score, winner=self.winner)
 
     def deal(self, move):
         """
@@ -75,6 +77,20 @@ class Awale:
 
         return starving
 
+    def cannot_feed(self, player):
+        """
+        :param player: numéro du joueur
+        :return: "ne peut pas nourrir l'adversaire"
+        """
+        minmove = player * 6
+        maxmove = (1 + player) * 6
+        cannot_feed = True
+
+        for i in range(minmove, maxmove):
+            cannot_feed = cannot_feed and self.will_starve(player, i)
+
+        return cannot_feed
+
     def can_play(self, player, move):
         """
         :param player: numéro du joueur
@@ -87,7 +103,8 @@ class Awale:
         maxpick = (2 - player) * 6
 
         if self.board[minpick:maxpick].sum() == 0:
-            return minmove <= move < maxmove and self.board[move] != 0 and not self.will_starve(player, move)
+            return minmove <= move < maxmove and self.board[move] != 0 and (
+                not self.will_starve(player, move) or self.cannot_feed(player))
         else:
             return minmove <= move < maxmove and self.board[move] != 0
 
@@ -121,3 +138,17 @@ class Awale:
         :return: valeur numérique de l'état actuel de la partie
         """
         return self.score[player] - self.score[1 - player]
+
+    def check_winner(self, player):
+        """
+        Vérifie si la partie est terminée.
+        :param player: numéro du joueur qui vient de jouer
+        :return: aucun retour
+        """
+        if self.winner == -2:
+            minpick = (1 - player) * 6
+            maxpick = (2 - player) * 6
+            if self.board[minpick:maxpick].sum() == 0 or self.score[player] >= 24:
+                self.winner = player
+            elif self.score[1 - player] >= 24:
+                self.winner = 1 - player

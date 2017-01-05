@@ -14,7 +14,6 @@ class Game:
         """
         self.awale = Awale(board, score)
         self.players = [player0, player1]
-        self.game_over = False
         self.debug = debug
         self.moves_count = 0
         self.max_count = max_count
@@ -34,22 +33,6 @@ class Game:
               "On regarde de même les trous précédents, et on s'arrête dès qu'un trou contient 0, 1 ou plus de 4"
               " graines ou qu'on revient au territoire du joueur.\n"
               "Le gagnant est celui qui a le plus de graines à la fin de la partie.\n")
-
-    def update_game_over(self, player):
-        """
-        :param player: numéro du joueur
-        :return: "la partie est terminée"
-        """
-        minmove = player * 6
-        maxmove = (1 + player) * 6
-        minpick = (1 - player) * 6
-        maxpick = (2 - player) * 6
-        cannot_feed = self.awale.board[minpick:maxpick].sum() == 0
-
-        for i in range(minmove, maxmove):
-            cannot_feed = cannot_feed and self.awale.will_starve(player, i)
-
-        self.game_over = self.awale.score[player] >= 24 or self.awale.score[1 - player] >= 24 or cannot_feed
 
     def get_board(self):
         """
@@ -72,13 +55,14 @@ class Game:
         Affiche le score de chaque joueur.
         :return: aucun retour
         """
-        print("Score du joueur 0 :", self.awale.score[0], "\nScore du joueur 1 :", self.awale.score[1])
+        print("Score du joueur 0 : {}\nScore du joueur 1 : {}".format(self.awale.score[0], self.awale.score[1]))
 
     def display_result(self):
         """
         Affiche le résultat de la partie.
         :return: aucun retour
         """
+        print("La partie s'est terminée en {} coups.".format(self.moves_count))
         if self.awale.score[0] < 24 and self.awale.score[1] < 24:
             self.awale.get_seeds()
         self.display_score()
@@ -97,26 +81,30 @@ class Game:
         if self.debug:
             self.display_rules()
 
-        self.awale = Awale(board=None, score=None)
-        self.game_over = False
+        self.awale = Awale()
         self.moves_count = 0
         player = 0
 
-        while not self.game_over and self.moves_count < self.max_count:
+        while self.awale.winner == -2 and self.moves_count < self.max_count:
             self.moves_count += 1
 
             if self.debug:
                 self.display_board()
                 self.display_score()
-                print("C'est au joueur", player, "de jouer.")
+                minmove = player * 6
+                maxmove = (1 + player) * 6
+                print("C'est au joueur {} de jouer. Choisissez une case entre {} et {}.".format(player, minmove,
+                                                                                                maxmove - 1))
 
             move = self.players[player].get_move(self.awale, player)
             if self.awale.can_play(player, move):
                 self.awale.play(player, move)
+                self.awale.check_winner(player)
+                if self.debug:
+                    print("Le joueur {} a joué la case {}.".format(player, move))
             else:
-                raise Exception("Erreur! La case %s ne peut pas être jouée." % move)
+                raise Exception("Erreur! La case {} ne peut pas être jouée.".format(move))
             player = 1 - player
-            self.update_game_over(player)
 
         if self.debug:
             self.display_result()
