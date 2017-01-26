@@ -5,7 +5,11 @@ from newbie_player import NewbiePlayer
 from negamax_player import NegamaxPlayer
 from negabeta_player import NegabetaPlayer
 from evaluation import Evaluation
+import time
 
-game = Game(NegabetaPlayer(5 ,Evaluation.evaluation1), NegabetaPlayer(5, Evaluation.evaluation2), debug=False)
+game = Game(NegabetaPlayer(8, Evaluation.evaluation2), NegabetaPlayer(9, Evaluation.evaluation2), debug=False)
+t = time.clock()
 game.new_game()
+t = time.clock() - t
+print(t / 60)
 game.display_result()

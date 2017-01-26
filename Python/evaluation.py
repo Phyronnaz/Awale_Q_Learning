@@ -31,16 +31,13 @@ class Evaluation:
 
     @staticmethod
     def evaluation2(awale, player):
-        alpha = -0.4
-        beta = 0.4
-        gamma = 0.1
-        delta = -0.1
+        w = [-0.4, 0.4, 0.1, -0.1]
         entier = awale.score[player] - awale.score[1 - player]
         allier_12 = Evaluation.eval_12(awale, player)  # nombre total de 1-2 chez nous (mauvais)
         adversaire_12 = Evaluation.eval_12(awale, 1 - player)  # nombre total de 1-2 chez l'autre (bon)
         allier_krou = Evaluation.eval_krou(awale, player)  # présence d'un krou sur notre terrain (bon)
         adversaire_krou = Evaluation.eval_krou(awale, 1 - player)  # présence d'un krou chez l'aversaire (mauvais)
-        rep = entier + 0.5 + (alpha * allier_12) + (beta * adversaire_12) + (gamma * allier_krou) + (
-            delta * adversaire_krou)
+        rep = entier + 0.5 + (w[0] * allier_12) + (w[1] * adversaire_12) + (w[3] * allier_krou) + (
+            w[3] * adversaire_krou)
         rep = ((1000 * rep) // 1) / 1000
         return rep
