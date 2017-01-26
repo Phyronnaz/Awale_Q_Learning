@@ -1,4 +1,3 @@
-
 class Negabeta:
     @staticmethod
     def negabeta(awale, depth, player, alpha, beta, evaluation):

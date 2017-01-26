@@ -2,7 +2,7 @@ from negabeta import Negabeta
 
 
 class NegabetaPlayer:
-    def __init__(self, depth,evaluation):
+    def __init__(self, depth, evaluation):
         self.depth = depth
         self.alpha = -float("inf")
         self.beta = float("inf")
