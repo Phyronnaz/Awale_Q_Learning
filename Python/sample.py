@@ -6,9 +6,10 @@ from negabeta_player import NegabetaPlayer
 from evaluation import *
 
 game = Game(RandomPlayer(), RandomPlayer())
-sample = numpy.array([])
+sample = []
+target = []
 
-for k in range(10):
+for k in range(15):
     print(k)
     game.awale = Awale()
     game.moves_count = 0
@@ -18,7 +19,8 @@ for k in range(10):
         game.moves_count += 1
         board = game.awale.board
         best_move = NegabetaPlayer(10, evaluation2).get_move(game.awale, player)
-        numpy.append(sample, (board, best_move))
+        sample.append(board)
+        target.append(best_move)
         move = game.players[player].get_move(game.awale, player)
         if game.awale.can_play(player, move):
             game.awale.play(player, move)
@@ -26,3 +28,6 @@ for k in range(10):
         else:
             raise Exception("Erreur! La case {} ne peut pas être jouée.".format(move))
         player = 1 - player
+
+numpy.save('X_sample', numpy.array(sample))
+numpy.save('y_target', numpy.array(target))
