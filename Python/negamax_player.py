@@ -1,4 +1,4 @@
-from negamax import Negamax
+from negamax import negamax
 
 
 class NegamaxPlayer:
@@ -7,6 +7,6 @@ class NegamaxPlayer:
         self.evaluation = evaluation
 
     def get_move(self, awale, player):
-        move = Negamax.negamax(awale, self.depth, player, self.evaluation)[1]
+        move = negamax(awale, self.depth, player, self.evaluation)[1]
 
         return move

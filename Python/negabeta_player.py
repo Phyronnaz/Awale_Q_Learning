@@ -1,4 +1,4 @@
-from negabeta import Negabeta
+from negabeta import negabeta
 
 
 class NegabetaPlayer:
@@ -9,6 +9,6 @@ class NegabetaPlayer:
         self.evaluation = evaluation
 
     def get_move(self, awale, player):
-        move = Negabeta.negabeta(awale, self.depth, player, self.alpha, self.beta, self.evaluation)[1]
+        move = negabeta(awale, self.depth, player, self.alpha, self.beta, self.evaluation)[1]
 
         return move
