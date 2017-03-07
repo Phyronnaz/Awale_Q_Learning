@@ -2,123 +2,161 @@
 # TODO : À finir, ne pas exécuter tel quel.
 import numpy
 import random
+
+from keras.callbacks import History
+
 from awale import Awale
+from game import Game
+from human_player import HumanPlayer
+from main import init_board, play, can_play, get_winner
+from newbie_player import NewbiePlayer
+from q_player import QPlayer
 from random_player import RandomPlayer
 from keras.models import Sequential
-from keras.layers.core import Dense, Dropout, Activation
+from keras.layers.core import Dense, Activation
 from keras.optimizers import RMSprop
+import matplotlib.pyplot as plt
 
-model = Sequential()
-model.add(Dense(164, init='lecun_uniform', input_shape=(48,)))
-model.add(Activation('relu'))
-# model.add(Dropout(0.2)) I'm not using dropout, but maybe you wanna give it a try?
 
-model.add(Dense(150, init='lecun_uniform'))
-model.add(Activation('relu'))
-# model.add(Dropout(0.2))
+def init_model():
+    model = Sequential()
+    model.add(Dense(64, init='lecun_uniform', input_shape=(12,)))
+    model.add(Activation('relu'))
 
-model.add(Dense(6, init='lecun_uniform'))
-model.add(Activation('linear'))  # linear output so we can have range of real-valued outputs
+    model.add(Dense(64, init='lecun_uniform'))
+    model.add(Activation('relu'))
 
-rms = RMSprop()
-model.compile(loss='mse', optimizer=rms)
+    model.add(Dense(6, init='lecun_uniform'))
+    model.add(Activation('linear'))  # linear output so we can have range of real-valued outputs
 
-epochs = 3000
-gamma = 0.7
+    rms = RMSprop()
+    model.compile(loss='mse', optimizer=rms)
+
+    return model
+
+
+def get_state(board, player):
+    board = numpy.copy(board)
+
+    if player == 1:
+        board = numpy.array([board[(i + 6) % 12] for i in range(12)])
+
+    board[board == 0] = -1
+
+    return board
+
+
+def get_move(state, model):
+    [q_values] = model.predict(numpy.array([state]))
+    return numpy.argmax(q_values)
+
+
+epochs = 10000
+gamma = 0.1
 epsilon = 1
 
+losses = []
+winners = []
 
-# batchSize = 40
-# buffer = 80
-# replay = []
-# stores tuples of (S, A, R, S')
-# h = 0
+model = init_model()
 
-def get_reward(awele, action, etat):
-    if not awale.can_play(0, action):
-        r = -8000
-    else:
-        if awele.winner == -2:
-            r = 0
-        elif awele.winner == -1:
-            r = -10
-        elif awele.winner == 0:
-            r = 100
-        elif awele.winner == 1:
-            r = -100
-        r += awele.score[0] - etat[1][0]
-        r -= awele.score[1] - etat[1][1]
+for epoch in range(epochs):
+    if epoch % 100 == 0:
+        print("epoch = {}".format(epoch))
 
-    return r
+    if epsilon > 0.1:  # decrement epsilon over time
+        epsilon -= 1 / epochs
 
-
-for e in range(epochs):
-    print("epoch = {}".format(e))
-
-    awale = Awale()
     moves_count = 0
     max_count = 400
+    board = init_board()
+    score = [0, 0]
+    winner = -2
     player = 0
 
-    while awale.winner == -2 and moves_count < max_count:
+    old_state, old_move, reward = None, None, None
+
+    while winner == -2 and moves_count < max_count:
         moves_count += 1
 
         if player == 0:
-            # État S
-            # Estimation du coup à jouer par le modèle
-            state = awale.board, awale.score
-            qval = model.predict(state[0].reshape(1, 12), batch_size=1)
-            if random.random() < epsilon:  # choix d'un coup aléatoire
-                move = random.randint(0, 5)
-            else:  # choix du meileur coup d'après la prédiction du modèle
-                move = numpy.argmax(qval)
-            old_state = awale.board, awale.score
-            awale.play(player, move)
-            awale.check_winner(player)
-            new_state = awale.board, awale.score
-            # État S', obtention de la récompense
-            reward = get_reward(awale, move, old_state)
-            # Experience replay storage
-            # if len(replay) < buffer:  # if buffer not filled, add to it
-            #     replay.append((old_state, move, reward, new_state))
-            # else:  # if buffer full, overwrite old values
-            #     if h < (buffer - 1):
-            #         h += 1
-            #     else:
-            #         h = 0
-            #     replay[h] = (old_state, move, reward, new_state)
-            #     # randomly sample our experience replay memory
-            #     minibatch = random.sample(replay, batchSize)
-            #     X_train = []
-            #     y_train = []
-            #     for memory in minibatch:
-            #         # Get max_Q(S',a)
-            #         old_state, move, reward, new_state = memory
-            #         old_qval = model.predict(old_state[0].reshape(1, 12), batch_size=1)
-            #         newQ = model.predict(new_state[0].reshape(1, 12), batch_size=1)
-            #         maxQ = numpy.max(newQ)
-            #         y = numpy.zeros((1, 6))
-            #         y[:] = old_qval[:]
-            #         if awale.winner != -2:  # non-terminal state
-            #             update = (reward + (gamma * maxQ))
-            #         else:  # terminal state
-            #             update = reward
-            #         y[0][move] = update
-            #         X_train.append(old_state[0].reshape(12, ))
-            #         y_train.append(y.reshape(6, ))
-            #
-            #     X_train = numpy.array(X_train)
-            #     y_train = numpy.array(y_train)
-            #     print("Game #: %s" % (i,))
-            #     model.fit(X_train, y_train, batch_size=batchSize, nb_epoch=1, verbose=1)
-            #     state = new_state
-            if epsilon > 0.1:  # decrement epsilon over time
-                epsilon -= (1 / epochs)
-        else:
-            move = RandomPlayer.get_move(awale, player)
-            if awale.can_play(player, move):
-                awale.play(player, move)
-                awale.check_winner(player)
+            state = get_state(board, player)
+
+            # Trouver le coup
+            if random.random() < epsilon:
+                move = numpy.random.randint(6)  # Limite regret
             else:
-                raise Exception("Erreur! La case {} ne peut pas être jouée.".format(move))
+                move = get_move(state, model)
+
+            # Sauvegarder
+            old_state, old_move = state, move
+        else:
+            move = NewbiePlayer.get_move(Awale(board, score), player)
+
+        if can_play(board, score, player, move):
+            board, new_score = play(board, score, player, move)
+
+            delta_score = [new_score[i] - score[i] for i in range(2)]
+            score = new_score
+
+            winner = get_winner(board, score, winner, player)
+        else:
+            winner = -3
+
+        winners.append(winner)
+
+        if player == 0:
+            reward = {-3: -10, -2: delta_score[0] / 48 - delta_score[1] / 48, -1: 0, 0: 5, 1: -5}[winner]
+
+        if player == 1 or winner != -2:
+            [old_q_values] = model.predict([numpy.array([old_state])])
+
+            if winner == -2:
+                new_state = get_state(board, 0)
+                [new_q_values] = model.predict([numpy.array([new_state])])
+
+                old_q_values[old_move] = reward + gamma * max(new_q_values)
+            else:
+                old_q_values[old_move] = reward
+
+            X = numpy.array([old_state])
+            Y = numpy.array([old_q_values])
+            loss = model.train_on_batch(X, Y)
+            losses.append(loss)
+
         player = 1 - player
+    if moves_count >= max_count:
+        print("coucou")
+
+# model.save("coucou.model")
+
+x = [k * len(winners) // 25 for k in range(25)]
+
+plt.subplot(211)
+plt.plot(x,
+         [numpy.array(losses[i * len(winners) // 25:(i + 1) * len(winners) // 25]).mean() for i in range(25)], "-o")
+
+plt.subplot(212)
+
+winner0 = numpy.zeros(25)
+winner1 = numpy.zeros(25)
+error = numpy.zeros(25)
+
+winners = numpy.array(winners)
+
+for i in range(25):
+    l = winners[i * len(winners) // 25:(i + 1) * len(winners) // 25]
+    n = sum(l != -2)
+    winner0[i] = sum(l == 0) / n
+    winner1[i] = sum(l == 1) / n
+    error[i] = sum(l == -3) / n
+
+plt.plot(x, winner0, "-o", color="blue")
+plt.plot(x, winner1, "-o", color="green")
+plt.plot(x, error, "-o", color="red")
+
+plt.show()
+
+game = Game(QPlayer(model), NewbiePlayer(), debug=True)
+game.new_game()
+game.display_result()
