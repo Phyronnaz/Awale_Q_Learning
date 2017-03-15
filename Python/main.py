@@ -19,8 +19,6 @@ def deal(board, move):
     :param move: indice de la case à jouer
     :return: nouveau plateau, case d'arrivée
     """
-    assert min(board) >= 0
-
     new_board = numpy.copy(board)
     seeds = new_board[move]
     new_board[move] = 0
@@ -145,9 +143,3 @@ def get_winner(board, score, winner, player):
             winner = 1 - player
 
     return winner
-
-def pretty_print(board):
-    north = board[6:12][::-1]
-    south = board[0:6]
-
-    print(numpy.array([north, south]))

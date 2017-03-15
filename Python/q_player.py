@@ -2,21 +2,45 @@ import keras.models
 import numpy
 
 from awale import Awale
-from main import can_play
+from main import can_play, deal
+
+
+
 
 def get_state(board, player):
     board = numpy.copy(board)
     if player == 1:
         board = numpy.array([board[(i + 6) % 12] for i in range(12)])
 
-    board[board == 0] = -1
+    state = -numpy.ones(576)
+    for i in range(12):
+        for j in range(board[i]):
+            state[i * 48 + j] = 1
 
-    return board
+    return state
 
+def get_moves(board, score, player):
+    board = numpy.copy(board)
+    minmove = player * 6
+    maxmove = (1 + player) * 6
+    minpick = (1 - player) * 6
+    maxpick = (2 - player) * 6
+    moves = -numpy.ones(6)
+    for i in range(minmove, maxmove):
+        if can_play(board, score, player, i):
+            moves[i] = 1
+    return moves
 
-def get_move(state, model):
-    [q_values] = model.predict(numpy.array([state]))
+def get_input_array(board, score, player):
+    state = get_state(board, player)
+    moves = get_moves(board, score, player)
+    return numpy.append(state, moves)
+
+def get_move(input_array, model):
+    [q_values] = model.predict(numpy.array([input_array]))
     return numpy.argmax(q_values)
+
+
 
 class QPlayer:
     def __init__(self, model):
@@ -24,10 +48,11 @@ class QPlayer:
 
     def get_move(self, awale: Awale, player):
         board = awale.board
-        state = get_state(board, player)
-        move = get_move(state, self.model) + 6 * player
+        score = awale.score
+        input_array = get_input_array(board, score, player)
+        move = get_move(input_array, self.model) + 6 * player
 
-        if can_play(board, [0, 0], player, move):
+        if can_play(board, score, player, move):
             return move
         else:
-            raise Exception("Erreur: La case {} a disparue".format(move))
+            raise Exception("Erreur! La case {} ne peut pas être jouée.".format(move))
