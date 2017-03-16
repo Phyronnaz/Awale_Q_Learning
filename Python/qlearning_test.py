@@ -19,10 +19,10 @@ import matplotlib.pyplot as plt
 
 def init_model():
     model = Sequential()
-    model.add(Dense(256, init='lecun_uniform', input_shape=(576,)))
+    model.add(Dense(256, init='lecun_uniform', input_shape=(48 * 12,)))
     model.add(Activation('relu'))
 
-    model.add(Dense(64, init='lecun_uniform'))
+    model.add(Dense(256, init='lecun_uniform'))
     model.add(Activation('relu'))
 
     model.add(Dense(6, init='lecun_uniform'))
@@ -39,7 +39,7 @@ def get_state(board, player):
     if player == 1:
         board = numpy.array([board[(i + 6) % 12] for i in range(12)])
 
-    state = -numpy.ones(576)
+    state = -numpy.ones(48 * 12)
     for i in range(12):
         for j in range(board[i]):
             state[i * 48 + j] = 1
@@ -68,14 +68,19 @@ def get_move(input_array, model):
     return numpy.argmax(q_values)
 
 
-epochs = 10000
-gamma = 0.1
+exploration_epochs = 7500
+final_epochs = 2500
+epochs = exploration_epochs + final_epochs
+gamma = 0.9
+initial_epsilon = 0.75
+final_epsilon = 0.01
 epsilon = 1
 
 losses = []
 winners = []
 score0 = []
 score1 = []
+nbre_coups = []
 
 model = init_model()
 
@@ -83,8 +88,10 @@ for epoch in range(epochs):
     if epoch % 100 == 0:
         print("epoch = {}".format(epoch))
 
-    if epsilon > 0.1:  # decrement epsilon over time
-        epsilon -= 1 / epochs
+    if epsilon > final_epsilon:
+        epsilon -= (initial_epsilon - final_epsilon) / exploration_epochs
+    else:
+        epsilon = 0
 
     moves_count = 0
     max_count = 400
@@ -110,7 +117,7 @@ for epoch in range(epochs):
             # Sauvegarder
             old_input_array, old_move = input_array, move
         else:
-            move = NewbiePlayer.get_move(Awale(board, score), player)
+            move = RandomPlayer.get_move(Awale(board, score), player)
 
         if can_play(board, score, player, move):
             board, new_score = play(board, score, player, move)
@@ -125,7 +132,7 @@ for epoch in range(epochs):
         winners.append(winner)
 
         if player == 0:
-            reward = {-3: -10, -2: delta_score[0] - delta_score[1], -1: -1, 0: 5, 1: -5}[winner]
+            reward = {-3: -10, -2: 0 * (delta_score[0] - delta_score[1]), -1: -1, 0: 5, 1: -5}[winner]
 
         if player == 1 or winner != -2:
             [old_q_values] = model.predict([numpy.array([old_input_array])])
@@ -146,6 +153,7 @@ for epoch in range(epochs):
         player = 1 - player
     score0.append(score[0])
     score1.append(score[1])
+    nbre_coups.append(moves_count)
     if moves_count >= max_count:
         print("La partie est trop longue.")
 
@@ -166,7 +174,6 @@ winners = numpy.array(winners)
 
 for i in range(25):
     w = winners[i * n:(i + 1) * n]
-    s0 = score0[i * n:(i + 1) * n]
     p = sum(w != -2)
     winner0[i] = sum(w == 0) * 100 / p
     winner1[i] = sum(w == 1) * 100 / p
@@ -187,9 +194,11 @@ plt.ylabel("Score moyen de QPlayer")
 plt.subplot(224)
 plt.plot(x, [numpy.array(score1[i * n:(i + 1) * n]).mean() for i in range(25)], "-o")
 plt.xlabel("Époque")
-plt.ylabel("Score moyen de NewbiePlayer")
+plt.ylabel("Score moyen de RandomPlayer")
+plt.show()
+plt.plot(x, [numpy.array(nbre_coups[i * n:(i + 1) * n]).mean() for i in range(25)], "-o")
 plt.show()
 
-game = Game(QPlayer(model), NewbiePlayer(), debug=True)
+game = Game(QPlayer(model), RandomPlayer(), debug=True)
 game.new_game()
 game.display_result()
