@@ -23,8 +23,6 @@ def get_moves(board, score, player):
     board = numpy.copy(board)
     minmove = player * 6
     maxmove = (1 + player) * 6
-    minpick = (1 - player) * 6
-    maxpick = (2 - player) * 6
     moves = -numpy.ones(6)
     for i in range(minmove, maxmove):
         if can_play(board, score, player, i):
@@ -34,7 +32,7 @@ def get_moves(board, score, player):
 def get_input_array(board, score, player):
     state = get_state(board, player)
     moves = get_moves(board, score, player)
-    return numpy.append(state, moves)
+    return state
 
 def get_move(input_array, model):
     [q_values] = model.predict(numpy.array([input_array]))

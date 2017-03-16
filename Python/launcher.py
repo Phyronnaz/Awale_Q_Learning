@@ -8,7 +8,7 @@ from negabeta_player import NegabetaPlayer
 from evaluation import *
 import time
 
-game = Game(NegabetaPlayer(6,evaluation2), NegabetaPlayer(6, evaluation2), debug=True)
+game = Game(NegabetaPlayer(6, evaluation2), NegabetaPlayer(6, evaluation2), debug=True)
 t = time.clock()
 game.new_game()
 t = time.clock() - t

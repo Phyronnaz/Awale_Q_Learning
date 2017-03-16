@@ -19,7 +19,7 @@ import matplotlib.pyplot as plt
 
 def init_model():
     model = Sequential()
-    model.add(Dense(64, init='lecun_uniform', input_shape=(582,)))
+    model.add(Dense(256, init='lecun_uniform', input_shape=(576,)))
     model.add(Activation('relu'))
 
     model.add(Dense(64, init='lecun_uniform'))
@@ -50,8 +50,6 @@ def get_moves(board, score, player):
     board = numpy.copy(board)
     minmove = player * 6
     maxmove = (1 + player) * 6
-    minpick = (1 - player) * 6
-    maxpick = (2 - player) * 6
     moves = -numpy.ones(6)
     for i in range(minmove, maxmove):
         if can_play(board, score, player, i):
@@ -62,7 +60,7 @@ def get_moves(board, score, player):
 def get_input_array(board, score, player):
     state = get_state(board, player)
     moves = get_moves(board, score, player)
-    return numpy.append(state, moves)
+    return state
 
 
 def get_move(input_array, model):
@@ -71,7 +69,7 @@ def get_move(input_array, model):
 
 
 epochs = 10000
-gamma = 0.5
+gamma = 0.1
 epsilon = 1
 
 losses = []
@@ -127,7 +125,7 @@ for epoch in range(epochs):
         winners.append(winner)
 
         if player == 0:
-            reward = {-3: -10, -2: delta_score[0] - delta_score[1], -1: -5, 0: 10, 1: -5}[winner]
+            reward = {-3: -10, -2: delta_score[0] - delta_score[1], -1: -1, 0: 5, 1: -5}[winner]
 
         if player == 1 or winner != -2:
             [old_q_values] = model.predict([numpy.array([old_input_array])])
