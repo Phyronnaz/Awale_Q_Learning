@@ -1,10 +1,7 @@
-import keras.models
 import numpy
 
-from awale import Awale
-from main import can_play, deal
-
-
+from awale.awale import Awale
+from main import can_play
 
 
 def get_state(board, player):
@@ -12,10 +9,10 @@ def get_state(board, player):
     if player == 1:
         board = numpy.array([board[(i + 6) % 12] for i in range(12)])
 
-    state = -numpy.ones(48 * 12)
+    state = -numpy.ones(32 * 12)
     for i in range(12):
         for j in range(board[i]):
-            state[i * 48 + j] = 1
+            state[i * 32 + j] = 1
 
     return state
 

@@ -1,7 +1,7 @@
 # TODO: Comparer temps d'éxécution Negabeta/Negamax
 # TODO: Nombre de coup
-from evaluation import *
 from game import Game
+from awale.evaluation import *
 from negabeta_player import NegabetaPlayer
 
 rep = [[] for _ in range(10)]

@@ -1,5 +1,6 @@
 import numpy
-from awale import Awale
+
+from awale.awale import Awale
 
 
 class Game:

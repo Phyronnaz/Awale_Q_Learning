@@ -6,14 +6,14 @@ class Awale:
     Permet de modéliser l'awalé.
     """
 
-    def __init__(self, board=None, score=None, winner=-2):
+    def __init__(self, board=None, score=None, count=4, winner=-2):
         """
         Le plateau de jeu est constitué de 2 rangées de 6 trous, chaque trou contenant 4 graines au départ par défaut.
         Le score de chaque joueur est initalisé à 0 par défaut.
         :param board: plateu de jeu
         :param score: score des deux joueurs
         """
-        self.board = board if board is not None else 4 * numpy.ones(12, numpy.int)
+        self.board = board if board is not None else count * numpy.ones(12, numpy.int)
         self.score = score if score is not None else numpy.zeros(2, numpy.int)
         # Vaut -2 tant que la partie n'est pas finie, -1 s'il y a égalité et le numéro du joueur s'il y a un gagnant.
         self.winner = winner

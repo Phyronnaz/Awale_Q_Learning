@@ -2,15 +2,12 @@ import numpy
 
 
 # TODO : Revoir la documentation des fonctions.
-def init_board():
+def init_board(count=4):
     """
     Le plateau de jeu est constitué de 2 rangées de 6 trous, chaque trou contenant 4 graines au départ par défaut.
     Le score de chaque joueur est initalisé à 0 par défaut.
     """
-    board = 4 * numpy.ones(12, numpy.int)
-    # Vaut -2 tant que la partie n'est pas finie, -1 s'il y a égalité et le numéro du joueur s'il y a un gagnant.
-
-    return board
+    return count * numpy.ones(12, numpy.int)
 
 
 def deal(board, move):
@@ -53,7 +50,7 @@ def pick(board, score, player, move):
     return new_board, new_score
 
 
-def will_starve(board, score, player, move):
+def will_starve(board, player, move):
     """
     :param player: numéro du joueur
     :param move: indice de la case à jouer
@@ -61,13 +58,13 @@ def will_starve(board, score, player, move):
     """
     minpick = (1 - player) * 6
     maxpick = (2 - player) * 6
-    new_board = pick(board, score, player, move)[0]
+    new_board = pick(board, [0, 0], player, move)[0]
     starving = new_board[minpick:maxpick].sum() == 0
 
     return starving
 
 
-def cannot_feed(board, score, player):
+def cannot_feed(board, player):
     """
     :param player: numéro du joueur
     :return: "ne peut pas nourrir l'adversaire"
@@ -77,12 +74,12 @@ def cannot_feed(board, score, player):
     cannot_feed = True
 
     for i in range(minmove, maxmove):
-        cannot_feed = cannot_feed and will_starve(board, score, player, i)
+        cannot_feed = cannot_feed and will_starve(board, player, i)
 
     return cannot_feed
 
 
-def can_play(board, score, player, move):
+def can_play(board, player, move):
     """
     :param player: numéro du joueur
     :param move: indice de la case à jouer
@@ -95,7 +92,7 @@ def can_play(board, score, player, move):
 
     if board[minpick:maxpick].sum() == 0:
         return minmove <= move < maxmove and board[move] != 0 and (
-            not will_starve(board, score, player, move) or cannot_feed(board, score, player) or True)
+            not will_starve(board, player, move) or cannot_feed(board, player))
     else:
         return minmove <= move < maxmove and board[move] != 0
 
@@ -107,7 +104,7 @@ def play(board, score, player, move):
     :param move: indice de la case à jouer
     :return: aucun retour
     """
-    if will_starve(board, score, player, move):
+    if will_starve(board, player, move):
         new_board = deal(board, move)[0]
         board = new_board
     else:
