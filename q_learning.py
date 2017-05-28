@@ -125,7 +125,7 @@ def create_database(n):
             board, score = play(board, action)
             scores[0] += score
 
-            winner = get_winner(board, scores, winner)
+            winner = get_winner(board, scores, winner, 0)
 
             board = invert_players(board)
 
@@ -151,7 +151,7 @@ def train(model, database):
         model.train_on_batch(*f(X[l], Y[l]))
 
 
-def learn(size, epochs, memory_size, batch_size, model_path="", thread=None):
+def learn(gamma, epochs, memory_size, batch_size, model_path="", thread=None):
     """
     Train the model
     :return: model, dataframe
@@ -235,7 +235,7 @@ def learn(size, epochs, memory_size, batch_size, model_path="", thread=None):
                 if terminal:
                     update = reward
                 else:
-                    update = reward - max(new_q_values[i])
+                    update = reward - gamma * max(new_q_values[i])
 
                 old_q_values[i][action] = update
 
@@ -282,6 +282,8 @@ def learn(size, epochs, memory_size, batch_size, model_path="", thread=None):
             else:
                 winner = 2
 
+            winner = get_winner(board, [score / 2, score / 2], winner, 0)
+
             ##################
             ## Invert board ##
             ##################
@@ -295,14 +297,12 @@ def learn(size, epochs, memory_size, batch_size, model_path="", thread=None):
             old_state = features
             new_state = get_features(board)
 
-            winner = get_winner(board, [score / 2, score / 2], winner)
-
             terminal = winner != -2
 
             if winner == 2:
                 reward = -24
             else:
-                reward = score
+                reward = s
 
             memory.append((old_state, action, new_state, reward, terminal))
 

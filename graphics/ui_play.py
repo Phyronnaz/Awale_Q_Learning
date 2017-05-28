@@ -13,7 +13,7 @@ class PlayUI:
     def __init__(self, ui: Ui_TIPE):
         # Variables
         self.game = None
-        self.models = ["Human"]
+        self.models = ["Human", "Minimax"]
 
         self.ui = ui
 
@@ -102,7 +102,7 @@ class PlayUI:
         Update UI after a move
         """
         self.update_boards()
-        b = self.game is not None and self.game.winner == -2 and self.game.players[self.game.player] != "Human"
+        b = self.game is not None and self.game.winner == -2 and self.game.players[self.game.player][0] != "Human"
         self.ui.pushButtonPlay.setEnabled(b)
 
     def update_boards(self):
@@ -140,7 +140,8 @@ class PlayUI:
         Create a new game
         """
         combos = self.ui.comboBoxPlayer1.currentIndex(), self.ui.comboBoxPlayer2.currentIndex()
-        players = [self.models[i] for i in combos]
+        depths = self.ui.spinBoxDepth1.value(), self.ui.spinBoxDepth2.value()
+        players = [(self.models[combos[i]], depths[i]) for i in range(2)]
         self.game = Game(players)
         self.update_game()
         print("New game")
@@ -155,21 +156,19 @@ class PlayUI:
             self.update_models_list()
 
     def get_aux_board(self, player):
-        name = self.game.players[player]
+        name = self.game.players[player][0]
         if name == "Human":
             return np.zeros(12)
+        elif name == "Minimax":
+            return np.zeros(12)
         else:
-            config = tf.ConfigProto()
-            sess = tf.Session(config=config)
-            keras.backend.set_session(sess)
-            with sess.graph.as_default():
-                model = keras.models.load_model(name)
+            model = self.game.models[player]
 
-                board_0 = invert(self.game.board, 0)
-                board_1 = invert(self.game.board, 1)
+            board_0 = invert(self.game.board, 0)
+            board_1 = invert(self.game.board, 1)
 
-                [q_values_0] = model.predict(np.array([get_features(board_0)]))
-                [q_values_1] = model.predict(np.array([get_features(board_1)]))
+            [q_values_0] = model.predict(np.array([get_features(board_0)]))
+            [q_values_1] = model.predict(np.array([get_features(board_1)]))
 
             l = np.zeros(12)
             l[:6] = q_values_0

@@ -1,7 +1,6 @@
 import keras.models
-import numpy as np
-import tensorflow as tf
 from main import *
+from negamax.negamax import get_move_negamax
 from q_learning import get_action, get_features
 
 
@@ -18,6 +17,11 @@ class Game:
         self.player = 0
         self.winner = -2
         self.scores = [0, 0]
+        self.models = [None, None]
+
+        for i in range(2):
+            if self.players[i][0] not in ["Human", "Minimax"]:
+                self.models[i] = keras.models.load_model(self.players[i][0])
 
     def play_move(self, move):
         if self.winner == -2:
@@ -28,7 +32,7 @@ class Game:
                 self.scores[self.player] += score
                 self.board = invert(i_board, self.player)
 
-                self.winner = get_winner(self.board, self.scores, self.winner)
+                self.winner = get_winner(self.board, self.scores, self.winner, self.player)
                 self.player = 1 - self.player
             else:
                 print("Failed to play! Move: {}".format(move))
@@ -39,22 +43,19 @@ class Game:
                 print("Winner: {}".format(self.winner))
 
     def play(self):
-        name = self.players[self.player]
+        name, depth = self.players[self.player]
         if name == "Human":
             return
+        elif name == "Minimax":
+            s = self.scores if self.player == 0 else self.scores[::-1]
+            self.play_move(get_move_negamax(invert(self.board, self.player), s, 4, 0, depth))
         else:
-            config = tf.ConfigProto()
-            sess = tf.Session(config=config)
-            keras.backend.set_session(sess)
-            with sess.graph.as_default():
-                model = keras.models.load_model(name)
-
-                i_board = invert(self.board, self.player)
-                move = get_action(model, get_features(i_board))
+            i_board = invert(self.board, self.player)
+            move = get_action(self.models[self.player], get_features(i_board))
 
             self.play_move(move)
 
     def click(self, i):
-        if self.players[self.player] == "Human":
+        if self.players[self.player][0] == "Human":
             if self.player * 6 <= i < (self.player + 1) * 6:
                 return self.play_move(i % 6)

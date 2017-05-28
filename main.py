@@ -130,7 +130,7 @@ def get_seeds(board, scores):
             board[i] = 0
 
 
-def get_winner(board, scores, winner):
+def get_winner(board, scores, winner, player):
     """
     Vérifie si la partie est terminée : winner vaut -2 si la partie n'est pas terminée, -1 s'il y a égalité ou le numéro
     du gagnant sinon.
@@ -140,14 +140,13 @@ def get_winner(board, scores, winner):
     :param player: numéro du joueur qui vient de jouer
     :return: nouvel état
     """
-    for player in range(2):
-        if winner == -2:
-            minpick = (1 - player) * 6
-            maxpick = (2 - player) * 6
-            if board[minpick:maxpick].sum() == 0 or scores[player] >= 24:
-                winner = player
-            elif scores[1 - player] >= 24:
-                winner = 1 - player
+    if winner == -2:
+        minpick = (1 - player) * 6
+        maxpick = (2 - player) * 6
+        if board[minpick:maxpick].sum() == 0 or scores[player] >= 24:
+            winner = player
+        elif scores[1 - player] >= 24:
+            winner = 1 - player
 
     return winner
 

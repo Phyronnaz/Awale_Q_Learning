@@ -8,10 +8,10 @@ import tensorflow as tf
 
 
 class LearnThread(threading.Thread):
-    def __init__(self, size=3, epochs=1000, memory_size=1024, batch_size=64, comment="", model=""):
+    def __init__(self, gamma=1, epochs=1000, memory_size=1024, batch_size=64, comment="", model=""):
         threading.Thread.__init__(self)
 
-        self.size = size
+        self.gamma = gamma
         self.epochs = epochs
         self.memory_size = memory_size
         self.batch_size = batch_size
@@ -39,8 +39,8 @@ class LearnThread(threading.Thread):
         sess = tf.Session(config=config)
         keras.backend.set_session(sess)
         with sess.graph.as_default():
-            model, df = learn(self.size, self.epochs, self.memory_size, self.batch_size, self.model, thread=self)
-            awale_io.save_model_and_df(model, df, self.size, self.epochs, self.memory_size, self.batch_size, self.comment)
+            model, df = learn(self.gamma, self.epochs, self.memory_size, self.batch_size, self.model, thread=self)
+            awale_io.save_model_and_df(model, df, self.gamma, self.epochs, self.memory_size, self.batch_size, self.comment)
 
         self.learning = False
         print("Learning ended")

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 df = pd.read_hdf(
-    "/home/victor/Awale/V0/size-3-epochs-10000-memory_size-8192-batch_size-128-comment--date-2017_05_23_23:39:43.hdf5")
+    "/home/victor/Awale/V0/gamma-0.9-epochs-100000-memory_size-25000-batch_size-512-comment--date-2017_05_26_18:34:33.hdf5")
 
 n = len(df.loss)
 y = n // 25

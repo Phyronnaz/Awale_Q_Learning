@@ -1,3 +1,3 @@
 from learn_thread import LearnThread
 
-LearnThread(epochs=250000, batch_size=128, memory_size=8192).run()
+LearnThread(epochs=100000, batch_size=512, memory_size=25000, gamma=0.9).run()
